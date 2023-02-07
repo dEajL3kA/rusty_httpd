@@ -25,6 +25,7 @@ fn main() {
     let public_path = env::var("HTTP_PUBLIC_PATH").ok().map(PathBuf::from).unwrap_or_else(default_public_path);
     let address = env::var("HTTP_BIND_ADDRESS").ok().map(|str| IpAddr::from_str(&str).expect("Failed to parse bind address!")).unwrap_or(IpAddr::V4(Ipv4Addr::UNSPECIFIED));
     let port_number = env::var("HTTP_PORT_NUMBER").ok().map(|str| str.parse().expect("Failed to parse port number!")).unwrap_or(8080);
+    let thread_count = env::var("HTTP_THREADS").ok().map(|str| str.parse().expect("Failed to parse number of threads!"));
 
     if !public_path.is_dir() {
         error!("Public path {:?} does not exist, is not a directory, or is inaccessible!", public_path);
@@ -32,7 +33,7 @@ fn main() {
     }
 
     let handler = WebHandler::new(&public_path).expect("Failed to create web-handler instance!");
-    let mut server = Server::bind(address, port_number, None, None).expect("Failed to create the server!");
+    let mut server = Server::bind(address, port_number, None, thread_count).expect("Failed to create the server!");
 
     let canceller = server.canceller().expect("Failed to create canceller!");
     drop(ctrlc::set_handler(move || {
