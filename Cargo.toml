@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "rusty_httpd"
-version = "1.0.0"
+version = "1.0.1"
 
 [dependencies]
 case_insensitive_hashmap = "1.0.0"
