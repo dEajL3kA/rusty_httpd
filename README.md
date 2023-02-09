@@ -4,7 +4,7 @@ Simple and scalable multi-threaded HTTP server implemented purely in Rust.
 
 This project is heavily based on: [**mtcp-rs**](https://crates.io/crates/mtcp-rs)
 
-![rusty_httpd](public/rusty_httpd.png)
+![](public/rusty_httpd.png)
 
 ## Environment Variables
 

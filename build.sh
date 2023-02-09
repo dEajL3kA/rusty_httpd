@@ -8,11 +8,15 @@ mkdir -p out
 case "$(uname)" in
 	Linux)
 		TARGETS="i686-unknown-linux-musl x86_64-unknown-linux-musl aarch64-unknown-linux-musl"
-		TAR=tar
+		TAR_COMMAND=tar
 		;;
 	FreeBSD)
-		TARGETS="i686-unknown-freebsd x86_64-unknown-freebsd aarch64-unknown-freebsd"
-		TAR=gtar
+		TARGETS="i686-unknown-freebsd x86_64-unknown-freebsd"
+		TAR_COMMAND=gtar
+		;;
+	Darwin)
+		TARGETS="x86_64-apple-darwin aarch64-apple-darwin"
+		TAR_COMMAND=hdiutil
 		;;
 	*)
 		echo "Unknown platform!"
@@ -35,13 +39,18 @@ for target in ${TARGETS}; do
 	chmod 444 ${outdir}/public/*.*
 	cp -vf LICENSE ${outdir}
 	chmod 444 ${outdir}/LICENSE
-	pandoc --metadata title="Rusty HTTP Server" -f markdown README.md -t html5 -o ${outdir}/README.html
+	pandoc -f markdown -t html5 --metadata title="Rusty HTTP Server" -o ${outdir}/README.html README.md
 	chmod 444 ${outdir}/README.html
 done
 
 echo "----------------------------------------------------------------"
 echo "Create bundles..."
 echo "----------------------------------------------------------------"
-find out -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | \
-	xargs -I {} ${TAR} --owner=0 --group=0 -czvf out/{}.tar.gz -C out {}
-chmod 444 out/*.tar.gz
+if [ "${TAR_COMMAND}" == "hdiutil" ]; then
+	find out -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
+		sudo xargs -I {} ${TAR_COMMAND} create out/{}.dmg -ov -volname "Rusty HTTP Server" -fs HFS+ -srcfolder out/{}
+else
+	find out -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
+		xargs -I {} ${TAR_COMMAND} --owner=0 --group=0 -czvf out/{}.tar.gz -C out {}
+	chmod 444 out/*.tar.gz
+fi
