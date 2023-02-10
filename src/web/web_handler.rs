@@ -84,7 +84,7 @@ impl WebHandler {
                     Self::error_forbidden()
                 }
             } else {
-                warn!("[id:{id:X}] Requested resource {:?} could not found!", full_path);
+                warn!("[id:{id:X}] Requested resource {:?} could not be found!", full_path);
                 Self::error_not_found()
             }
         } else {
