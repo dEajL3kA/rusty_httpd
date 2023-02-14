@@ -2,8 +2,8 @@
 set -e
 cd -- "$(dirname -- "${0}")"
 
-rm -rf out target
-mkdir -p out
+rm -rf build target
+mkdir -p build
 
 case "$(uname)" in
 	Linux)
@@ -28,7 +28,7 @@ for target in ${TARGETS}; do
 	echo "----------------------------------------------------------------"
 	echo "${target}"
 	echo "----------------------------------------------------------------"
-	outdir="out/rusty_httpd.$(date +'%Y-%m-%d').${target}"
+	outdir="build/rusty_httpd.$(date +'%Y-%m-%d').${target}"
 	cargo build --release --target=${target}
 	mkdir -p ${outdir}
 	cp -vf target/${target}/release/rusty_httpd ${outdir}
@@ -47,10 +47,10 @@ echo "----------------------------------------------------------------"
 echo "Create bundles..."
 echo "----------------------------------------------------------------"
 if [ "${TAR_COMMAND}" == "hdiutil" ]; then
-	find out -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
-		sudo xargs -I {} ${TAR_COMMAND} create out/{}.dmg -ov -volname "Rusty HTTP Server" -fs HFS+ -srcfolder out/{}
+	find build -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
+		sudo xargs -I {} ${TAR_COMMAND} create build/{}.dmg -ov -volname "Rusty HTTP Server" -fs HFS+ -srcfolder build/{}
 else
-	find out -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
-		xargs -I {} ${TAR_COMMAND} --owner=0 --group=0 -czvf out/{}.tar.gz -C out {}
-	chmod 444 out/*.tar.gz
+	find build -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | \
+		xargs -I {} ${TAR_COMMAND} --owner=0 --group=0 -czvf build/{}.tar.gz -C build {}
+	chmod 444 build/*.tar.gz
 fi
